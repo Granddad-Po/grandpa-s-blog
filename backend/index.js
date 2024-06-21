@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import { registerValidation } from "./validations/auth.js";
 
 import UserModel from "./models/User.js";
+import checkAuth from "./utils/checkAuth.js";
 
 mongoose
   .connect(
@@ -23,13 +24,33 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/auth/me", checkAuth, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Пользователь не найден",
+      });
+    }
+
+    const { passwordHash, ...userData } = user._doc;
+
+    return res.json(userData);
+  } catch (error) {
+    res.status(500).json({
+      message: "Нет доступа",
+    });
+  }
+});
+
 app.post("/auth/login", async (req, res) => {
   try {
     const user = await UserModel.findOne({ email: req.body.email });
 
     if (!user) {
       return res.status(404).json({
-        message: "Пользователь с таким email не найден",
+        message: "Пользователь не найден",
       });
     }
 
@@ -39,7 +60,7 @@ app.post("/auth/login", async (req, res) => {
     );
 
     if (!isValidPassword) {
-      return res.status(505).json({
+      return res.status(400).json({
         message: "Неверный логин или пароль",
       });
     }
