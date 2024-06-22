@@ -19,7 +19,7 @@ const PostSchema = new Schema(
       type: Array,
       default: [],
     },
-    imageUrl: Number,
+    imageUrl: String,
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
