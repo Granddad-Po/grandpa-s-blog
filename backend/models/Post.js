@@ -11,7 +11,7 @@ const PostSchema = new Schema(
       type: String,
       required: true,
     },
-    watchCount: {
+    viewsCount: {
       type: Number,
       default: 0,
     },

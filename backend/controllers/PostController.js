@@ -17,11 +17,20 @@ export const getAll = async (req, res) => {
 export const getOne = async (req, res) => {
   try {
     const postId = req.params.id;
-    const post = await PostModel.findById(postId).populate("author").exec();
+
+    const post = await PostModel.findByIdAndUpdate(
+      {
+        _id: postId,
+      },
+      {
+        $inc: { viewsCount: 1 },
+      },
+      { returnDocument: "after" }
+    ).exec();
 
     if (!post) {
       return res.status(404).json({
-        message: "Пост не существует",
+        message: "Пост не найден",
       });
     }
 
@@ -29,7 +38,7 @@ export const getOne = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      message: "Не удалось найти пост",
+      message: "Не удалось получить пост",
     });
   }
 };
@@ -84,4 +93,16 @@ export const remove = async (req, res) => {
       message: "Не удалось удалить пост",
     });
   }
+};
+
+export const update = async (req, res) => {
+  const postId = req.param.id;
+
+  const post = await PostModel.findByIdAndUpdate(postId, {
+    title: req.body.title,
+    text: req.body.text,
+    tags: req.body.tags,
+    imageUrl: req.body.imageUrl,
+    author: req.userId,
+  });
 };
