@@ -19,9 +19,7 @@ export const getOne = async (req, res) => {
     const postId = req.params.id;
 
     const post = await PostModel.findByIdAndUpdate(
-      {
-        _id: postId,
-      },
+      postId,
       {
         $inc: { viewsCount: 1 },
       },
@@ -96,13 +94,24 @@ export const remove = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-  const postId = req.param.id;
+  try {
+    const postId = req.param.id;
 
-  const post = await PostModel.findByIdAndUpdate(postId, {
-    title: req.body.title,
-    text: req.body.text,
-    tags: req.body.tags,
-    imageUrl: req.body.imageUrl,
-    author: req.userId,
-  });
+    await PostModel.updateOne(postId, {
+      title: req.body.title,
+      text: req.body.text,
+      tags: req.body.tags,
+      imageUrl: req.body.imageUrl,
+      author: req.userId,
+    });
+
+    res.json({
+      message: "Пост был успешно обновлен",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Не удалось обновить пост",
+    });
+  }
 };
