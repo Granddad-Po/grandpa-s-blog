@@ -2,12 +2,13 @@ import express from "express";
 import mongoose from "mongoose";
 import multer from "multer";
 
-import { loginValidation, registerValidation } from "./validations/auth.js";
-import { newPostValidation } from "./validations/post.js";
-import checkAuth from "./utils/checkAuth.js";
-import * as UserController from "./controllers/UserController.js";
-import * as PostController from "./controllers/PostController.js";
-import handleValidationErrors from "./utils/handleValidationErrors.js";
+import {
+  loginValidation,
+  registerValidation,
+  newPostValidation,
+} from "./validations/index.js";
+import { checkAuth, handleValidationErrors } from "./utils/index.js";
+import { UserController, PostController } from "./controllers/index.js";
 
 mongoose
   .connect(
@@ -52,9 +53,21 @@ app.get("/auth/me", checkAuth, UserController.getMe);
 
 app.get("/posts", PostController.getAll);
 app.get("/posts/:id", PostController.getOne);
-app.post("/posts", checkAuth, newPostValidation, PostController.create);
+app.post(
+  "/posts",
+  checkAuth,
+  newPostValidation,
+  handleValidationErrors,
+  PostController.create
+);
 app.delete("/posts/:id", checkAuth, PostController.remove);
-app.patch("/posts/:id", checkAuth, newPostValidation, PostController.update);
+app.patch(
+  "/posts/:id",
+  checkAuth,
+  newPostValidation,
+  handleValidationErrors,
+  PostController.update
+);
 
 app.post("/uploads", checkAuth, upload, (req, res) => {
   res.json({
